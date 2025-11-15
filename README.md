@@ -1,5 +1,9 @@
 # AceStream HTTP Proxy on ARM64 (Raspberry Pi 5)
 
+<div align="center">
+  <img src="logo.jpg" alt="AceStream on Raspberry Pi Logo" width="200" height="200">
+</div>
+
 Complete solution with **beautiful web interface** for easy stream link conversion! 🎬
 
 ---
