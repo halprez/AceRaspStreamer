@@ -32,14 +32,11 @@ services:
 
   # Web Interface for acestream:// link handling
   web-interface:
-    image: python:3.11-slim
+    image: acestream-web:ffmpeg
     container_name: acestream-web
     ports:
       - "5000:5000"
     working_dir: /app
-    volumes:
-      - ./web/app.py:/app/app.py:ro
-      - ./web/index.html:/app/index.html:ro
     environment:
       - ACESTREAM_PROXY_HOST=acestream-proxy
       - ACESTREAM_PROXY_PORT=6878
@@ -52,7 +49,8 @@ services:
         condition: service_healthy
     networks:
       - acestream-net
-    command: sh -c "pip install --quiet Flask==3.0.0 && python3 app.py"
+    volumes:
+      - /tmp/acestream-hls:/tmp/acestream-hls
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
