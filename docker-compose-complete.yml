@@ -32,7 +32,7 @@ services:
 
   # Web Interface for acestream:// link handling
   web-interface:
-    image: acestream-web:ffmpeg
+    image: acestream-web:simple
     container_name: acestream-web
     ports:
       - "5000:5000"

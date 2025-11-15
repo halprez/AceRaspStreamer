@@ -615,7 +615,7 @@
             showStatus('Loading stream...', 'loading');
 
             try {
-                // Call the Flask API to convert the link and start transcoding
+                // Call the Flask API to convert the link
                 const convertResponse = await fetch('/api/convert', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -629,50 +629,20 @@
                 const convertData = await convertResponse.json();
 
                 // Store URLs globally
-                currentStreamUrls.hls = convertData.hls_transcoded_url;
                 currentStreamUrls.mpegts = convertData.mpegts_url;
 
-                // Display the MPEG-TS URL for VLC fallback
+                // Display the MPEG-TS URL for VLC
                 document.getElementById('mpegtsUrlDisplay').value = convertData.mpegts_url;
                 document.getElementById('streamUrlsContainer').style.display = 'block';
 
                 // Display player container
                 document.getElementById('playerContainer').classList.add('active');
 
-                // Wait a moment for transcoding to start, then load HLS stream
-                setTimeout(() => {
-                    loadTranscodedHLS(convertData.hls_transcoded_url, contentId);
-                }, 1000);
-
+                showStatus('✅ Stream URL ready! Copy and paste into VLC', 'success');
+                setTimeout(hideStatus, 3000);
             } catch (error) {
                 showStatus(`Error: ${error.message}`, 'error');
                 document.getElementById('playerContainer').classList.remove('active');
-            }
-        }
-
-        function loadTranscodedHLS(hlsUrl, contentId) {
-            try {
-                if (!player) {
-                    showStatus('Player not initialized', 'error');
-                    return;
-                }
-
-                // Set the HLS stream source
-                player.src({
-                    src: hlsUrl,
-                    type: 'application/x-mpegURL'
-                });
-
-                // Start playback
-                player.play().catch(() => {
-                    // Player might not be ready yet
-                    showStatus('Stream preparing... please wait', 'loading');
-                });
-
-                showStatus('✅ Stream loaded! Playing now...', 'success');
-                setTimeout(hideStatus, 3000);
-            } catch (error) {
-                showStatus(`Error loading stream: ${error.message}`, 'error');
             }
         }
 
