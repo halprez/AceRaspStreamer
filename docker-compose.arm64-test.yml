@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  acestream-proxy:
+    image: plaza24/acestream-arm64v8:3.1.50-memory
+    container_name: acestream-proxy
+    ports:
+      - "6878:6878"
+    environment:
+      - HTTP_PORT=6878
+      - ALLOW_REMOTE_ACCESS=yes
+    restart: unless-stopped
+    # Optional: mount volume for cache/data persistence
+    # volumes:
+    #   - ./acestream-data:/root/.ACEStream

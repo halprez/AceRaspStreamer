@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  acestream:
+    image: wgen/acestream:arm64
+    container_name: acestream-proxy
+    ports:
+      - "6878:6878"
+    restart: unless-stopped
+    volumes:
+      # Persist cache/data (optional but recommended)
+      - ./acestream-data:/root/.ACEStream
+    environment:
+      # Set timezone (optional)
+      - TZ=Atlantic/Canary
+    # Resource limits (optional - adjust for your Pi 5)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+# Usage after starting:
+# HLS streams: http://localhost:6878/ace/manifest.m3u8?id=YOUR_STREAM_ID
+# MPEG-TS: http://localhost:6878/ace/getstream?id=YOUR_STREAM_ID
+#
+# For remote access, use your Pi's IP instead of localhost

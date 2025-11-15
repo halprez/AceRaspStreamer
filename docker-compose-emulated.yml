@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  acestream:
+    # This is the original x86_64 image running via QEMU emulation
+    image: ghcr.io/martinbjeldbak/acestream-http-proxy:latest
+    platform: linux/amd64  # Force x86_64 architecture (will use QEMU)
+    container_name: acestream-proxy
+    ports:
+      - "6878:6878"
+    environment:
+      - ALLOW_REMOTE_ACCESS=yes  # Change to 'no' for localhost only
+      - TZ=Atlantic/Canary
+    restart: unless-stopped
+    volumes:
+      # Persist cache/data (optional but recommended)
+      - ./acestream-data:/root/.ACEStream
+    # Resource limits - emulation needs more resources
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+        reservations:
+          memory: 1G
+
+# IMPORTANT: Before using this, ensure QEMU is installed:
+# sudo apt-get install -y qemu-user-static binfmt-support
+# docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#
+# Note: Performance will be ~30% slower due to emulation overhead
+# Try native ARM64 images first (wgen or plaza24)
+#
+# Usage after starting:
+# HLS streams: http://localhost:6878/ace/manifest.m3u8?id=YOUR_STREAM_ID
+# MPEG-TS: http://localhost:6878/ace/getstream?id=YOUR_STREAM_ID

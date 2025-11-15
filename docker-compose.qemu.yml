@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  acestream-proxy:
+    # Use the original x86_64 image
+    image: ghcr.io/martinbjeldbak/acestream-http-proxy:latest
+    platform: linux/amd64  # Force x86_64 architecture
+    container_name: acestream-proxy
+    ports:
+      - "6878:6878"
+    environment:
+      - HTTP_PORT=6878
+      - ALLOW_REMOTE_ACCESS=yes
+    restart: unless-stopped
+    # Optional: mount volume for cache/data persistence
+    # volumes:
+    #   - ./acestream-data:/root/.ACEStream
