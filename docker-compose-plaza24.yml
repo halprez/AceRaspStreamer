@@ -14,15 +14,25 @@ services:
     volumes:
       # Persist cache/data (optional but recommended)
       - ./acestream-data:/root/.ACEStream
-    # Resource limits (optional - adjust for your Pi 5)
+    # Resource limits - INCREASED for better stability
     deploy:
       resources:
         limits:
-          memory: 2G
+          memory: 4G
         reservations:
-          memory: 512M
+          memory: 2G
+    # SHM size increased for better performance
+    shm_size: 512M
+    # Healthcheck to monitor engine status
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6878/webui/api/service?method=get_version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 # Note: This uses Acestream version 3.1.50 (older but stable)
+# Improved: Increased memory limits and added health checks
 #
 # Usage after starting:
 # HLS streams: http://localhost:6878/ace/manifest.m3u8?id=YOUR_STREAM_ID
@@ -30,3 +40,6 @@ services:
 #
 # For remote access from other devices, use your Pi's IP:
 # http://192.168.1.XXX:6878/ace/getstream?id=YOUR_STREAM_ID
+#
+# Check status: docker compose -f docker-compose-plaza24.yml ps
+# View logs: docker compose -f docker-compose-plaza24.yml logs -f

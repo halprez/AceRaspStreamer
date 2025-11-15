@@ -63,6 +63,22 @@ echo "Selected: $IMAGE_NAME"
 echo "Using: $COMPOSE_FILE"
 echo ""
 
+# Provide recommendations
+case $choice in
+    1)
+        echo "ℹ️  Tip: This native ARM64 image is fast but may have stability issues."
+        echo "    If it crashes repeatedly, switch to option 3 (QEMU)."
+        ;;
+    2)
+        echo "ℹ️  Tip: This is a stable older version. Less features than wgen but very reliable."
+        ;;
+    3)
+        echo "ℹ️  Installing QEMU support for x86_64 emulation..."
+        echo "   This will take a moment on first run."
+        ;;
+esac
+echo ""
+
 # Check if file exists
 if [ ! -f "$COMPOSE_FILE" ]; then
     echo "❌ File $COMPOSE_FILE not found!"
@@ -109,6 +125,13 @@ if docker ps | grep -q acestream-proxy; then
 else
     echo ""
     echo "❌ Container failed to start"
-    echo "Check logs with: docker logs acestream-proxy"
+    echo ""
+    echo "Troubleshooting steps:"
+    echo "1. Check logs: docker logs acestream-proxy"
+    echo "2. If using wgen (option 1) and seeing crashes, switch to QEMU (option 3)"
+    echo "3. Ensure you have enough memory: free -h"
+    echo "4. Check port 6878 isn't already in use: sudo lsof -i :6878"
+    echo "5. Restart Docker: sudo systemctl restart docker"
+    echo ""
     exit 1
 fi

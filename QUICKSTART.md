@@ -1,19 +1,34 @@
 # Acestream on Raspberry Pi 5 - Quick Start
 
-You're right - there ARE existing Docker containers for ARM64! Here's the simplest way to get started.
+## 🚀 Super Quick Start (WORKING SOLUTION)
 
-## 🚀 Super Quick Start
+For Raspberry Pi 5, use QEMU emulation - it's the most reliable:
 
 ```bash
-# Option 1: Native ARM64 (Recommended)
+# Use QEMU emulation (most stable):
+docker compose -f docker-compose-emulated.yml up -d
+
+# Verify it's working (wait 60 seconds for startup):
+curl http://localhost:6878/webui/api/service?method=get_version
+```
+
+**Alternative approaches:**
+
+```bash
+# Option 1: Try native ARM64 wgen (faster but may crash):
 docker run -d -p 6878:6878 --name acestream wgen/acestream:arm64
 
-# Option 2: Alternative ARM64
+# Option 2: Alternative ARM64 (very stable but older):
 docker run -d -p 6878:6878 -e ALLOW_REMOTE_ACCESS=yes plaza24/acestream-arm64v8:3.1.50-memory
 
-# Option 3: Emulated (if native doesn't work)
+# Option 3: Emulated x86_64 via QEMU (slower but most reliable) ✅ RECOMMENDED
 docker run -d --platform linux/amd64 -p 6878:6878 ghcr.io/martinbjeldbak/acestream-http-proxy:latest
 ```
+
+⚠️ **Known Issues:**
+- **wgen/acestream:arm64**: Engine crashes every 30 seconds (use QEMU instead)
+- **plaza24/acestream-arm64v8**: Segmentation fault on Pi 5 (use QEMU instead)
+- **QEMU emulation**: ~30% slower but stable and reliable ✅
 
 ## 📦 Recommended Setup (with docker-compose)
 

@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # AceStream HTTP Proxy (QEMU emulation - most reliable)
+  acestream-proxy:
+    image: ghcr.io/martinbjeldbak/acestream-http-proxy:latest
+    platform: linux/amd64
+    container_name: acestream-proxy
+    ports:
+      - "6878:6878"
+    environment:
+      - ALLOW_REMOTE_ACCESS=yes
+      - TZ=Atlantic/Canary
+    restart: unless-stopped
+    volumes:
+      - ./acestream-data:/root/.ACEStream
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    shm_size: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6878/webui/api/service?method=get_version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    networks:
+      - acestream-net
+
+  # Web Interface for acestream:// link handling
+  web-interface:
+    image: python:3.11-slim
+    container_name: acestream-web
+    ports:
+      - "5000:5000"
+    working_dir: /app
+    volumes:
+      - ./web/app.py:/app/app.py:ro
+      - ./web/index.html:/app/index.html:ro
+    environment:
+      - ACESTREAM_PROXY_HOST=acestream-proxy
+      - ACESTREAM_PROXY_PORT=6878
+      - WEB_PORT=5000
+      - WEB_HOST=0.0.0.0
+      - FLASK_ENV=production
+    restart: unless-stopped
+    depends_on:
+      acestream-proxy:
+        condition: service_healthy
+    networks:
+      - acestream-net
+    command: sh -c "pip install --quiet Flask==3.0.0 && python3 app.py"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  acestream-net:
+    driver: bridge
+
+# Usage:
+# 1. Start everything:
+#    docker compose -f docker-compose-complete.yml up -d
+#
+# 2. Access web interface:
+#    http://localhost:5000
+#
+# 3. Use the web interface to convert acestream:// links to playable streams
+#
+# 4. Open generated stream URLs in VLC, MPV, or your favorite media player
+#
+# Commands:
+#   View logs:    docker compose -f docker-compose-complete.yml logs -f
+#   Stop:         docker compose -f docker-compose-complete.yml down
+#   Restart:      docker compose -f docker-compose-complete.yml restart
