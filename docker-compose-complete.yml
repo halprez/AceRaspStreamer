@@ -6,6 +6,7 @@ services:
     image: ghcr.io/martinbjeldbak/acestream-http-proxy:latest
     platform: linux/amd64
     container_name: acestream-proxy
+    user: "0"
     ports:
       - "6878:6878"
     environment:
@@ -13,7 +14,7 @@ services:
       - TZ=Atlantic/Canary
     restart: unless-stopped
     volumes:
-      - ./acestream-data:/root/.ACEStream
+      - acestream_cache:/root/.ACEStream
     deploy:
       resources:
         limits:
@@ -60,6 +61,10 @@ services:
 networks:
   acestream-net:
     driver: bridge
+
+volumes:
+  acestream_cache:
+    driver: local
 
 # Usage:
 # 1. Start everything:
